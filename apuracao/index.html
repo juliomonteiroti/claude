@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apuração Presidente 2026</title>
+<meta name="description" content="Apuração em tempo real do 1º turno da eleição para Presidente da República 2026, com dados oficiais do TSE.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f6f9;
+    --surface: #ffffff;
+    --border: #e1e6ee;
+    --text: #1c2533;
+    --muted: #6b7686;
+    --faint: #9aa4b2;
+    --track: #e8edf3;
+    --accent: #1f5fbf;
+    --accent-soft: #dbe7f8;
+    --leader: #163f80;
+    --ok: #2f7d55;
+    --warn: #b0452f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f141b;
+      --surface: #161d27;
+      --border: #263142;
+      --text: #e6ebf2;
+      --muted: #97a3b4;
+      --faint: #6c7889;
+      --track: #222c3a;
+      --accent: #5b95e8;
+      --accent-soft: #1c2c45;
+      --leader: #8db6f2;
+      --ok: #5fb487;
+      --warn: #e07a63;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f141b;
+    --surface: #161d27;
+    --border: #263142;
+    --text: #e6ebf2;
+    --muted: #97a3b4;
+    --faint: #6c7889;
+    --track: #222c3a;
+    --accent: #5b95e8;
+    --accent-soft: #1c2c45;
+    --leader: #8db6f2;
+    --ok: #5fb487;
+    --warn: #e07a63;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 32px 16px 48px; }
+
+  header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 4px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -.01em; margin: 0; }
+  .status { font-size: 13px; color: var(--muted); text-align: right; }
+  .status .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); margin-right: 6px; vertical-align: 1px; }
+  .status.err .dot { background: var(--warn); }
+  .status.loading .dot { background: var(--faint); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+
+  .progress-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+  .progress-head .label { color: var(--muted); font-size: 13px; font-weight: 500; }
+  .big { font-size: 40px; font-weight: 700; letter-spacing: -.02em; line-height: 1; color: var(--accent); }
+  .big small { font-size: 18px; font-weight: 600; }
+  .bar { height: 8px; background: var(--track); border-radius: 4px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width .6s ease; }
+  .progress-foot { margin-top: 10px; font-size: 13px; color: var(--muted); }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border-radius: 10px; overflow: hidden; margin-top: 16px; border: 1px solid var(--border); }
+  .stat { background: var(--surface); padding: 12px 14px; }
+  .stat .k { font-size: 12px; color: var(--muted); }
+  .stat .v { font-size: 16px; font-weight: 600; }
+  .stat .p { font-size: 12px; color: var(--faint); }
+
+  h2 { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 32px 0 12px; }
+
+  .list { display: flex; flex-direction: column; gap: 8px; }
+  .cand { display: grid; grid-template-columns: 48px 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; }
+  .cand.lead { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 600; font-size: 15px; overflow: hidden; }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .info { min-width: 0; }
+  .name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meta { font-size: 12px; color: var(--muted); }
+  .tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 11px; font-weight: 600; vertical-align: 1px; }
+  .cand .bar { height: 6px; margin-top: 8px; }
+  .cand:not(.lead) .bar > span { background: var(--faint); }
+  .nums { text-align: right; }
+  .pct { font-size: 22px; font-weight: 700; letter-spacing: -.01em; }
+  .lead .pct { color: var(--leader); }
+  .votes { font-size: 12px; color: var(--muted); }
+
+  .empty { padding: 32px; text-align: center; color: var(--muted); }
+
+  footer { margin-top: 32px; font-size: 12px; color: var(--faint); line-height: 1.6; }
+  footer a { color: var(--muted); }
+
+  @media (max-width: 560px) {
+    .wrap { padding-top: 20px; }
+    h1 { font-size: 22px; }
+    .status { text-align: left; }
+    .big { font-size: 34px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .cand { grid-template-columns: 40px 1fr auto; gap: 10px; padding: 12px; }
+    .avatar { width: 40px; height: 40px; font-size: 13px; }
+    .pct { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <p class="eyebrow">Eleições 2026 · 1º turno</p>
+      <h1>Presidente da República</h1>
+    </div>
+    <div class="status loading" id="status"><span class="dot"></span><span id="status-text">Carregando…</span></div>
+  </header>
+
+  <section class="card">
+    <div class="progress-head">
+      <span class="label">Urnas apuradas</span>
+      <span class="big" id="pct-apuradas">–<small>%</small></span>
+    </div>
+    <div class="bar"><span id="bar-apuradas" style="width:0"></span></div>
+    <div class="progress-foot" id="secoes">&nbsp;</div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">Válidos</div><div class="v" id="vv">–</div><div class="p" id="pvv">&nbsp;</div></div>
+      <div class="stat"><div class="k">Brancos</div><div class="v" id="vb">–</div><div class="p" id="pvb">&nbsp;</div></div>
+      <div class="stat"><div class="k">Nulos</div><div class="v" id="vn">–</div><div class="p" id="pvn">&nbsp;</div></div>
+      <div class="stat"><div class="k">Abstenção</div><div class="v" id="abst">–</div><div class="p" id="pabst">&nbsp;</div></div>
+    </div>
+  </section>
+
+  <h2>Candidatos · % dos votos válidos</h2>
+  <div class="list" id="lista"><div class="card empty">Carregando dados do TSE…</div></div>
+
+  <footer>
+    Fonte: Tribunal Superior Eleitoral — arquivos estáticos de divulgação de resultados
+    (<a href="https://resultados.tse.jus.br" target="_blank" rel="noopener">resultados.tse.jus.br</a>).
+    A página se atualiza sozinha a cada <span id="intervalo">30</span> segundos.
+    Resultado parcial e não oficial até a totalização.
+  </footer>
+</div>
+
+<script>
+(() => {
+  // Endereços seguem o padrão publicado pelo TSE em /oficial/comum/config/ele-c.json
+  const BASE = "https://resultados.tse.jus.br/oficial";
+  const CICLO = "ele2026";
+  const ELEICAO = "6257";     // Eleição Ordinária Federal 2026 – 1º turno
+  const CARGO = "0001";       // Presidente
+  const ELE6 = ELEICAO.padStart(6, "0");
+  const URL_DADOS = `${BASE}/${CICLO}/${ELEICAO}/dados/br/br-c${CARGO}-e${ELE6}-u.json`;
+  const URL_FOTO = sq => `${BASE}/${CICLO}/${ELEICAO}/fotos/br/${sq}.jpeg`;
+  const INTERVALO_S = 30;
+
+  const $ = id => document.getElementById(id);
+  const nf = new Intl.NumberFormat("pt-BR");
+  const int = s => parseInt(s, 10) || 0;
+  const num = s => parseFloat(String(s).replace(",", ".")) || 0;
+  const pct = s => num(s).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%";
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const titleCase = s => String(s).toLowerCase().replace(/(^|\s)(\p{L})/gu, (m, a, b) => a + b.toUpperCase())
+    .replace(/\b(Da|De|Do|Das|Dos|E)\b/g, w => w.toLowerCase());
+  const iniciais = s => String(s).split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+
+  $("intervalo").textContent = INTERVALO_S;
+
+  let ultimoCarimbo = "";
+  let timer = null;
+
+  function carimbo(d) {
+    // "dd/mm/aaaa" + "hh:mm:ss" -> "aaaammddhhmmss" para comparar e evitar voltar a um arquivo mais antigo de outro nó da CDN
+    const [dd, mm, aa] = (d.dt || "").split("/");
+    return `${aa}${mm}${dd}${(d.ht || "").replace(/:/g, "")}`;
+  }
+
+  function candidatos(d) {
+    const cargo = (d.carg || [])[0] || {};
+    const lista = [];
+    for (const agr of cargo.agr || []) {
+      for (const par of agr.par || []) {
+        for (const c of par.cand || []) {
+          lista.push({
+            numero: c.n,
+            nome: c.nmu || c.nm,
+            partido: par.sg,
+            coligacao: agr.tp === "c" ? agr.nm : "",
+            sq: c.sqcand,
+            votos: int(c.vap),
+            pct: c.pvap,
+            pctn: num(c.pvapn || c.pvap),
+            eleito: c.e === "s",
+            situacao: c.st,
+            valido: !c.dvt || c.dvt === "Válido",
+          });
+        }
+      }
+    }
+    return lista.filter(c => c.valido).sort((a, b) => b.votos - a.votos || a.nome.localeCompare(b.nome));
+  }
+
+  function renderResumo(d) {
+    const s = d.s || {}, e = d.e || {}, v = d.v || {};
+    $("pct-apuradas").innerHTML = `${esc(s.pst ?? "–")}<small>%</small>`;
+    $("bar-apuradas").style.width = `${num(s.pstn || s.pst)}%`;
+    $("secoes").textContent = s.ts
+      ? `${nf.format(int(s.st))} de ${nf.format(int(s.ts))} seções totalizadas`
+      : "";
+    $("vv").textContent = nf.format(int(v.vv));
+    $("pvv").textContent = pct(v.pvvc || 0);
+    $("vb").textContent = nf.format(int(v.vb));
+    $("pvb").textContent = pct(v.pvb || 0);
+    $("vn").textContent = nf.format(int(v.tvn ?? v.vn));
+    $("pvn").textContent = pct(v.ptvn ?? v.pvn ?? 0);
+    $("abst").textContent = nf.format(int(e.a));
+    $("pabst").textContent = pct(e.pa || 0);
+  }
+
+  function renderCandidatos(lista) {
+    if (!lista.length) {
+      $("lista").innerHTML = `<div class="card empty">Ainda não há votos divulgados.</div>`;
+      return;
+    }
+    $("lista").innerHTML = lista.map((c, i) => {
+      const tag = c.eleito ? "Eleito" : (c.situacao ? titleCase(c.situacao) : "");
+      return `
+      <article class="card cand${i === 0 && c.votos > 0 ? " lead" : ""}">
+        <div class="avatar">
+          <img src="${URL_FOTO(esc(c.sq))}" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode('${esc(iniciais(c.nome))}'))">
+        </div>
+        <div class="info">
+          <div class="name">${esc(titleCase(c.nome))}${tag ? `<span class="tag">${esc(tag)}</span>` : ""}</div>
+          <div class="meta">${esc(c.numero)} · ${esc(c.partido)}</div>
+          <div class="bar"><span style="width:${Math.min(c.pctn, 100).toFixed(2)}%"></span></div>
+        </div>
+        <div class="nums">
+          <div class="pct">${esc(c.pct)}%</div>
+          <div class="votes">${nf.format(c.votos)} votos</div>
+        </div>
+      </article>`;
+    }).join("");
+  }
+
+  function setStatus(tipo, texto) {
+    $("status").className = "status " + tipo;
+    $("status-text").textContent = texto;
+  }
+
+  async function atualizar() {
+    clearTimeout(timer);
+    try {
+      const r = await fetch(URL_DADOS, { cache: "no-cache" });
+      if (r.status === 404) throw new Error("Resultados ainda não publicados");
+      if (!r.ok) throw new Error(`TSE respondeu ${r.status}`);
+      const d = await r.json();
+      const c = carimbo(d);
+      if (c >= ultimoCarimbo) {
+        ultimoCarimbo = c;
+        renderResumo(d);
+        renderCandidatos(candidatos(d));
+      }
+      setStatus("", `Atualizado às ${d.ht || "–"} de ${d.dt || "–"}`);
+    } catch (err) {
+      setStatus("err", `${err.message || "Falha ao atualizar"} · nova tentativa em ${INTERVALO_S}s`);
+      if (!ultimoCarimbo) $("lista").innerHTML = `<div class="card empty">${esc(err.message || "Não foi possível carregar os dados.")}</div>`;
+    } finally {
+      timer = setTimeout(atualizar, INTERVALO_S * 1000);
+    }
+  }
+
+  // Ao voltar para a aba, busca na hora em vez de esperar o próximo ciclo
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") atualizar();
+  });
+
+  atualizar();
+})();
+</script>
+</body>
+</html>
